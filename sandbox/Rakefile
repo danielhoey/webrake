@@ -1,0 +1,18 @@
+require 'erb'
+require 'kramdown'
+require 'rake/clean'
+require '../src/webrake'
+
+@global_rakefile_variable = 'Text set in Rakefile'
+
+task :default => ['make', 'clean_intermediate']
+task :make => 'output/index.html'
+task :clean_intermediate do
+  CLOBBER.each { |fn| rm_r fn rescue nil }
+end
+
+CLEAN.include('output')
+directory('output')
+
+markdown('index.markdown')
+layout('index.html', 'default.html.erb')
