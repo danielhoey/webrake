@@ -16,3 +16,5 @@ directory('output')
 
 markdown('index.markdown')
 layout('index.html', 'default.html.erb')
+
+puts Rake.application.tasks.inspect
