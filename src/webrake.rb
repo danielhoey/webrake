@@ -1,4 +1,9 @@
 
+require_relative 'rules'
+require_relative 'file_system'
+Dir["#{File.dirname(__FILE__)}/filters/*_filter.rb"].each {|f| require_relative f}
+
+=begin
 def layout(source, layout)
   layout = "layout/#{layout}"
   output = "output/#{source}"
@@ -20,8 +25,4 @@ def markdown(source)
     write_file(output, content, File.mtime(source))
   end
 end
-
-def write_file(filename, content, mtime=nil)
-  File.open(filename, 'w+') {|f| f << content}
-  File.utime(mtime, mtime, filename) if mtime
-end
+=end

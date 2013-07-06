@@ -1,0 +1,9 @@
+require_relative '../src/webrake'
+
+task :default => ['make']
+
+Rules.new(Rake.application, FileSystem.new, {
+  'index.html.erb' => Filters::PassThroughFilter.new
+})
+
+task :make => 'source/index.html'
