@@ -4,17 +4,28 @@ class Rules
   def initialize(rake_app, file_system, rules)
     @rake_app = rake_app
     @file_system = file_system
+    @intermediate_files = []
+
     rules.each do |file, filter|
       add_rule(file, filter)
     end
+
+    define_clean_tasks
   end
 
   def add_rule(file, filter)
     output = "source/#{File.basename(file, '.*')}"
     source = "source/#{file}"
+    @intermediate_files << output
     @rake_app.define_task(Rake::FileTask, {output => source}) do
       content = filter.process(@file_system.read(source))
       @file_system.write(output, content, @file_system.mtime(source))
+    end
+  end
+
+  def define_clean_tasks
+    @rake_app.define_task(Rake::Task, :clean_intermediate_files) do 
+      @file_system.remove_all(@intermediate_files)
     end
   end
 end
@@ -41,12 +52,14 @@ class RulesTest < Minitest::Unit::TestCase
     file_system.expect(:mtime, mtime, ['source/index.html.erb'])
     file_system.expect(:write, nil, ['source/index.html', 'filter output', mtime])
     task.block.call
-
     [filter, file_system].each(&:verify)
     
-    #task :clean_intermediate do
-    #CLOBBER.each { |fn| rm_r fn rescue nil }
-    #assert_equal(:clean_intermediate_files, @rake_app.tasks[1]
+    task = @rake_app.tasks[1]
+    assert_equal(Rake::Task, task.klass)
+    assert_equal(:clean_intermediate_files, task.params)
+    file_system.expect(:remove_all, nil, [['source/index.html']])
+    task.block.call
+    file_system.verify
   end
 
   def test_output_file_extension
