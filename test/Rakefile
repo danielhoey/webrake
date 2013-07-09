@@ -1,10 +1,10 @@
 require_relative '../src/webrake'
 
-task :default => ['make']
+task :default => ['build']
 
 Rules.new(Rake.application, FileSystem.new, {
   'index.html.erb' => Filters::PassThroughFilter.new
 })
 
-task :make_clean => ['clean_intermediate_files', 'make']
-task :make => 'source/index.html'
+#puts Rake.application.tasks.inspect
+task :build_clean => ['clean_intermediate_files', 'build']
