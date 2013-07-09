@@ -3,7 +3,7 @@ require_relative '../src/webrake'
 task :default => ['build']
 
 Rules.new(Rake.application, FileSystem.new, {
-  'index.html.erb' => Filters::PassThroughFilter.new
+  '*.html.erb' => Filters::PassThroughFilter.new
 })
 
 #puts Rake.application.tasks.inspect

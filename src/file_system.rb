@@ -12,4 +12,7 @@ class FileSystem
   def remove_all(paths)
     paths.each { |f| rm_r f rescue nil }
   end
+  def file_list(glob)
+    FileList[glob]
+  end
 end

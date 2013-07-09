@@ -6,17 +6,18 @@ class Rules
     @file_system = file_system
     @intermediate_files = []
 
-    rules.each do |file, filter|
-      add_rule(file, filter)
+    rules.each do |glob, filter|
+      @file_system.file_list("source/#{glob}").each do |f|      
+        add_rule(f, filter)
+      end
     end
 
     define_clean_tasks
     define_build_task
   end
 
-  def add_rule(file, filter)
-    output = "source/#{File.basename(file, '.*')}"
-    source = "source/#{file}"
+  def add_rule(source, filter)
+    output = "source/#{File.basename(source, '.*')}"
     @intermediate_files << output
     @rake_app.define_task(Rake::FileTask, {output => source}) do
       content = filter.process(@file_system.read(source))
@@ -38,10 +39,12 @@ end
 
 require "minitest/autorun"
 class RulesTest < Minitest::Unit::TestCase
+  require 'byebug'
+
   def setup
-    @rake_app = RakeAppMock.new
     @filter = Minitest::Mock.new
     @file_system = Minitest::Mock.new
+    @rake_app = RakeAppMock.new
   end
   
   def make_rules(rules)
@@ -49,12 +52,22 @@ class RulesTest < Minitest::Unit::TestCase
   end
 
   def test_output_file_extension
-    rules = Rules.new(@rake_app, nil, 'style.ext2.ext1' => nil)
+    @file_system.expect(:file_list, ['source/style.ext2.ext1'], ['source/style.ext2.ext1'])
+    make_rules('style.ext2.ext1' => nil)
     assert_equal('source/style.ext2', @rake_app.tasks[0].params.keys[0])
   end
 
   def test_single_file_rule
+    @file_system.expect(:file_list, ['source/index.html.erb'], ['source/index.html.erb'])
     make_rules('index.html.erb' => @filter)
+    should_make_file_task
+    should_make_clean_task
+    should_make_build_task
+  end
+
+  def test_glob_rule
+    @file_system.expect(:file_list, ['source/index.html.erb'], ['source/*.html.erb'])
+    make_rules('*.html.erb' => @filter)
     should_make_file_task
     should_make_clean_task
     should_make_build_task
@@ -62,8 +75,8 @@ class RulesTest < Minitest::Unit::TestCase
 
   def should_make_file_task
     task = @rake_app.tasks[0]
-    assert_equal(Rake::FileTask, task.klass)
-    assert_equal({'source/index.html' => 'source/index.html.erb'}, task.params)
+    assert_equal([Rake::FileTask, {'source/index.html' => 'source/index.html.erb'}], 
+                 [task.klass, task.params])
 
     @filter.expect(:process, 'filter output', ['src file content'])
     @file_system.expect(:read, 'src file content', ['source/index.html.erb'])
