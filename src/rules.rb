@@ -36,7 +36,7 @@ class Rules
   end
 end
 
-
+if ARGV[0] == 'test'
 require "minitest/autorun"
 class RulesTest < Minitest::Unit::TestCase
   require 'byebug'
@@ -115,4 +115,4 @@ class RulesTest < Minitest::Unit::TestCase
     end
   end
 end
-
+end
