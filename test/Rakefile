@@ -2,9 +2,13 @@ require_relative '../src/webrake'
 
 task :default => ['build']
 
-Rules.new(Rake.application, FileSystem.new, {
-  '*.html.erb' => Filters::PassThroughFilter.new
-})
+Webrake.new(
+  Rake.application, 
+  FileSystem.new,
+  :filters => { '*.html.erb' => Filters::PassThroughFilter.new }
+ # ,:copy => { '*.html' => 'output/' }
+)
 
 #puts Rake.application.tasks.inspect
-task :build_clean => ['clean_intermediate_files', 'build']
+task :clean => 'clean_intermediate_files'
+task :build_clean => ['clean', 'build']
