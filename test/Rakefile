@@ -4,9 +4,9 @@ task :default => ['build']
 
 Webrake.new(
   Rake.application, 
-  FileSystem.new,
-  :filters => { '*.html.erb' => Filters::PassThroughFilter.new }
- # ,:copy => { '*.html' => 'output/' }
+  FileSystem.new('actual'),
+  :filters => { '*.html.erb' => Filters::PassThroughFilter.new },
+  :copy => { '*.html' => 'output/' }
 )
 
 #puts Rake.application.tasks.inspect

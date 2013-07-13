@@ -3,16 +3,49 @@ require 'fileutils'
 class FileSystem
   include FileUtils
 
-  def read(path); File.read(path); end
-  def mtime(path); File.mtime(path); end
+  def initialize(root_dir=nil)
+    @root_dir = File.expand_path(root_dir)
+  end
+
+  def read(path)
+    in_root_dir{ return File.read(path) }
+  end
+
+  def mtime(path)
+    in_root_dir { File.mtime(path) }
+  end
+
   def write(path, contents, mod_time=nil)
-    File.open(path, 'w+'){|f| f << contents}
-    File.utime(mod_time, mod_time, path) if mod_time
+    in_root_dir {
+      File.open(path, 'w+'){|f| f << contents}
+      File.utime(mod_time, mod_time, path) if mod_time
+    }
   end
+
+  def copy(src, target)
+    in_root_dir { cp(src, target) }
+  end
+
+  def mkdir(dir)
+    in_root_dir { mkdir_p(dir) }
+  end
+
   def remove_all(paths)
-    paths.each { |f| rm_r f rescue nil }
+    in_root_dir { paths.each { |f| rm_r f rescue nil } }
   end
+
   def file_list(glob)
-    FileList[glob]
+    in_root_dir { return FileList[glob] }
+  end
+
+  def in_root_dir
+    if @root_dir.nil?
+      yield
+    else
+      dir = Dir.pwd
+      Dir.chdir(@root_dir) 
+      yield
+      Dir.chdir(dir)
+    end
   end
 end
