@@ -1,7 +1,7 @@
 
 module Filters
 class PassThroughFilter
-  def process(content)
+  def apply(content)
     content
   end
 end

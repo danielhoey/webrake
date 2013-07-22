@@ -1,7 +1,7 @@
 require 'rake'
 require 'pathname'
 require_relative 'file_system'
-Dir["#{File.expand_path(File.dirname(__FILE__))}/filters/*_filter.rb"].each {|f| require f}
+Dir["#{File.expand_path(File.dirname(__FILE__))}/filters/*.rb"].each {|f| require f}
 
 class Webrake
   attr_accessor :intermediate_files
@@ -17,7 +17,8 @@ class Webrake
 
   def add_rules(rules)
     (rules.delete(:filters) || []).each do |glob, filter|
-      @file_system.file_list("source/#{glob}").each do |f|      
+      #TODO change this to input_files
+      input_files("source/#{glob}").each do |f|      
         add_filter(f, filter)
       end
     end
@@ -47,7 +48,7 @@ class Webrake
     output = "source/#{File.basename(source, '.*')}"
     @intermediate_files << output
     @rake_app.define_task(Rake::FileTask, {output => source}) do
-      content = rule.process(@file_system.read(source))
+      content = rule.apply(@file_system.read(source))
       @file_system.write(output, content, @file_system.mtime(source))
     end
   end
@@ -131,7 +132,7 @@ class WebrakeTest < Minitest::Unit::TestCase
     assert_equal([Rake::FileTask, {'source/index.html' => 'source/index.html.erb'}], 
                  [task.klass, task.params])
 
-    @filter.expect(:process, 'filter output', ['src file content'])
+    @filter.expect(:apply, 'filter output', ['src file content'])
     @file_system.expect(:read, 'src file content', ['source/index.html.erb'])
     mtime = Time.now
     @file_system.expect(:mtime, mtime, ['source/index.html.erb'])

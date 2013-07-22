@@ -5,7 +5,10 @@ task :default => ['build']
 Webrake.new(
   Rake.application, 
   FileSystem.new('actual'),
-  :filters => { '*.html.erb' => Filters::PassThroughFilter.new },
+  :filters => { 
+    '*.html.erb' => Filters::PassThroughFilter.new,
+    '*.html' => Filters::ErbLayout.new('actual/layout/default.html.erb') 
+  },
   :copy => { '*.html' => 'output/' }
 )
 
