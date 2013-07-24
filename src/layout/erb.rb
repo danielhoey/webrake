@@ -1,7 +1,7 @@
 require 'erb'
 
-module Filters
-class ErbLayout
+module Layout
+class Erb
   def initialize(layout)
     @layout = ERB.new(File.read(layout))
   end

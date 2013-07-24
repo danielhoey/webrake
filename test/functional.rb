@@ -9,6 +9,6 @@ class FunctionalTest < Minitest::Unit::TestCase
     
     system("rake clean_intermediate_files")
     assert(!File.exist?('source/index.html'))
-    assert(!File.exist?('source/index'))
+    assert(!File.exist?('output/index.html'))
   end
 end

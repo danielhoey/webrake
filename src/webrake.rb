@@ -2,6 +2,7 @@ require 'rake'
 require 'pathname'
 require_relative 'file_system'
 Dir["#{File.expand_path(File.dirname(__FILE__))}/filters/*.rb"].each {|f| require f}
+Dir["#{File.expand_path(File.dirname(__FILE__))}/layout/*.rb"].each {|f| require f}
 
 class Webrake
   attr_accessor :intermediate_files
@@ -10,23 +11,22 @@ class Webrake
     @rake_app = rake_app
     @file_system = file_system
     @intermediate_files = []
-    @copied_files = []
+    @output_files = []
 
     add_rules(rules) unless rules.empty?
   end
 
   def add_rules(rules)
     (rules.delete(:filters) || []).each do |glob, filter|
-      #TODO change this to input_files
       input_files("source/#{glob}").each do |f|      
         add_filter(f, filter)
       end
     end
     
-    (rules.delete(:copy) || []).each do |glob, destination|
-      @file_system.mkdir(destination)
+    (rules.delete(:output) || []).each do |glob, layout|
+      @file_system.mkdir('output/')
       input_files("source/#{glob}").each do |f|
-        add_file_copy(f, destination)
+        add_output_rule(f, 'output/', layout)
       end
     end
 
@@ -53,12 +53,13 @@ class Webrake
     end
   end
 
-  def add_file_copy(source, destination_directory)
+  def add_output_rule(source, destination_directory, layout)
     source = Pathname.new(source)
     output = "#{destination_directory}#{source.relative_path_from(Pathname.new('source/'))}"
-    @copied_files << output
+    @output_files << output
     @rake_app.define_task(Rake::FileTask, {output => source.to_s}) do
-      @file_system.copy(source.to_s, output)
+      content = layout.apply(@file_system.read(source.to_s))
+      @file_system.write(output, content, @file_system.mtime(source.to_s))
     end
   end
 
@@ -66,10 +67,16 @@ class Webrake
     @rake_app.define_task(Rake::Task, :clean_intermediate_files) do 
       @file_system.remove_all(@intermediate_files)
     end
+    
+    @rake_app.define_task(Rake::Task, :clean_output_files) do 
+      @file_system.remove_all(@output_files)
+    end
+    
+    @rake_app.define_task(Rake::Task, :clean => [:clean_intermediate_files, :clean_output_files])
   end
 
   def define_build_task
-    @rake_app.define_task(Rake::Task, :build => @intermediate_files + @copied_files)
+    @rake_app.define_task(Rake::Task, :build => @intermediate_files + @output_files)
   end
 end
 
@@ -83,21 +90,27 @@ class WebrakeTest < Minitest::Unit::TestCase
     @file_system = Minitest::Mock.new
     @rake_app = RakeAppMock.new
   end
-  
-  def test_copy_rules
+
+  def test_output_rules
     webrake = Webrake.new(@rake_app, @file_system)
     @file_system.expect(:file_list, FileList['source/file1.html'], ['source/*.html'])
     @file_system.expect(:mkdir, nil, ['output/'])
     webrake.intermediate_files = ['source/file2.html']
-    webrake.add_rules(:copy => {'*.html' => 'output/'})
+    layout = Minitest::Mock.new
+    webrake.add_rules(:output => {'*.html' => layout})
 
     assert_equal({'output/file1.html' => 'source/file1.html'}, @rake_app.tasks[0].params)
     assert_equal({'output/file2.html' => 'source/file2.html'}, @rake_app.tasks[1].params)
     @file_system.verify
-    
-    @file_system.expect(:copy, nil, ['source/file1.html', 'output/file1.html'])
+   
+    @file_system.expect(:read, 'src file content', ['source/file1.html'])
+    layout.expect(:apply, 'layout output', ['src file content'])
+    mtime = Time.now
+    @file_system.expect(:mtime, mtime, ['source/file1.html'])
+    @file_system.expect(:write, nil, ['output/file1.html', 'layout output', mtime])
     @rake_app.tasks[0].block.call
     @file_system.verify
+    layout.verify
 
     task = @rake_app.tasks[-1]
     assert_equal(Rake::Task, task.klass)
@@ -141,7 +154,7 @@ class WebrakeTest < Minitest::Unit::TestCase
     [@filter, @file_system].each(&:verify)
   end
 
-  def should_make_clean_task 
+  def should_make_clean_task
     task = @rake_app.tasks[1]
     assert_equal(Rake::Task, task.klass)
     assert_equal(:clean_intermediate_files, task.params)
@@ -151,7 +164,7 @@ class WebrakeTest < Minitest::Unit::TestCase
   end
 
   def should_make_build_task
-    task = @rake_app.tasks[2]
+    task = @rake_app.tasks[4]
     assert_equal(Rake::Task, task.klass)
     assert_equal({:build => ['source/index.html']}, task.params)
   end
