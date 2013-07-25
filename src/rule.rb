@@ -34,7 +34,7 @@ end
 if ARGV[0] == 'test'
 require 'byebug'
 require "minitest/autorun"
-class RuleTest < Minitest::Unit::TestCase
+class RuleTest < Minitest::Test
   def setup
     @transform = Minitest::Mock.new
     @file_system = Minitest::Mock.new

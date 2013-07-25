@@ -32,7 +32,7 @@ class Webrake
 
     rules.each do |glob, filter|
       r = Rule.new(filter, @file_system, output_dir, options)
-      input_files("source/#{glob}").each do |f|
+      input_files(glob).each do |f|
         add_task(r.create_task(f), file_list)
       end
     end
@@ -60,37 +60,9 @@ class Webrake
   end
 
   def input_files(glob)
-    files = @file_system.file_list(glob)
-    @intermediate_files.each do |f| 
-      files.add(f) if File.fnmatch(glob, f)
-    end
-    return files
+    InputFiles.new('source/', @file_system, @intermediate_files).find(glob)
   end
 end
 
 
 
-if ARGV[0] == 'test'
-require 'byebug'
-require "minitest/autorun"
-class WebrakeTest < Minitest::Unit::TestCase
-  def test_input_files
-    file_system = Minitest::Mock.new
-    rake_app = Minitest::Mock.new
-    file_system.expect(:mkdir, nil, ['output/'])
-    webrake = Webrake.new(rake_app, file_system)
-
-    file_system.expect(:file_list, FileList['file1'], ['file*'])
-    assert_equal(%w(file1), webrake.input_files('file*'))
-
-    webrake.intermediate_files = ['file2']
-    file_system.expect(:file_list, FileList['file1'], ['file*'])
-    assert_equal(%w(file1 file2), webrake.input_files('file*'))
-
-    webrake.intermediate_files = ['file2']
-    file_system.expect(:file_list, FileList[], ['file*'])
-    assert_equal(%w(file2), webrake.input_files('file*'))
-  end
-
-end
-end

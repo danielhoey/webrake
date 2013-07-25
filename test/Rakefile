@@ -5,9 +5,14 @@ task :default => ['build']
 Webrake.new(
   Rake.application, 
   FileSystem.new('actual'),
-  :filters => { '*.html.erb' => Filters::PassThroughFilter.new, },
-  :output => { '*.html' => Layout::Erb.new('actual/layout/default.html.erb') }
+  :filters => { 
+    '*.html.erb' => Filters::PassThroughFilter.new, 
+  },
+  :output => { 
+    '*.html' => Layout::Erb.new('actual/layout/default.html.erb'),
+  #  'blog/*.html' => Layout::Erb.new('actual/layout/blog.html.erb') 
+  }
 )
 
-#puts Rake.application.tasks.inspect
+puts Rake.application.tasks.inspect
 task :build_clean => ['clean', 'build']

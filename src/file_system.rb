@@ -17,6 +17,7 @@ class FileSystem
 
   def write(path, contents, mod_time=nil)
     in_root_dir {
+      mkdir_p(File.dirname(path))
       File.open(path, 'w+'){|f| f << contents}
       File.utime(mod_time, mod_time, path) if mod_time
     }
