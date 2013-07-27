@@ -1,6 +1,6 @@
 require 'erb'
 
-module Layout
+module Webrake::Layout
 class Erb
   def initialize(layout)
     @layout = ERB.new(File.read(layout), nil, '>')

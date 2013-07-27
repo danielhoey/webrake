@@ -1,5 +1,6 @@
 require 'rake'
 
+module Webrake
 class Rule
   def initialize(transform, file_system, output_directory, options={})
     @transform = transform
@@ -58,5 +59,6 @@ class RuleTest < Minitest::Test
     [@transform, @file_system].each(&:verify)
  
   end
+end
 end
 end

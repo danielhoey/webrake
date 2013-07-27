@@ -1,4 +1,5 @@
 
+module Webrake
 class InputFiles < Struct.new(:base_dir, :file_system, :file_list)
   def find(glob)
     glob = "**/#{glob}" if glob =~ /^\*/
@@ -48,5 +49,6 @@ class InputFilesTest < Minitest::Test
     assert_equal(%w(anything), input_files.find('*'))
   end
 
+end
 end
 end

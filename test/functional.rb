@@ -1,7 +1,7 @@
 require "fileutils"
 require "minitest/autorun"
 
-class FunctionalTest < Minitest::Unit::TestCase
+class FunctionalTest < Minitest::Test
   def setup
     Dir.chdir(File.dirname(__FILE__))
   end

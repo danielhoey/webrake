@@ -1,5 +1,5 @@
 
-module Filters
+module Webrake::Filters
 class PassThroughFilter
   def apply(content)
     content

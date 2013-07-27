@@ -1,5 +1,6 @@
 require 'fileutils'
 
+module Webrake
 class FileSystem
   include FileUtils
 
@@ -49,4 +50,5 @@ class FileSystem
       Dir.chdir(dir)
     end
   end
+end
 end

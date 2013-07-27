@@ -1,8 +1,9 @@
 require_relative '../src/webrake'
+include Webrake
 
 task :default => ['build']
 
-Webrake.new(
+Site.new(
   Rake.application, 
   FileSystem.new('actual'),
   :filters => { 
@@ -14,5 +15,5 @@ Webrake.new(
   }
 )
 
-puts Rake.application.tasks.inspect
+#puts Rake.application.tasks.inspect
 task :build_clean => ['clean', 'build']
