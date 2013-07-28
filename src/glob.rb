@@ -5,9 +5,6 @@ class Glob
     @raw_glob = raw_glob
   end
 
-  def super_set_of?(glob)
-  end
-
   def <=>(other)
     return 0 if raw == other.raw
     return 0 if raw =~ /^\*+$/ and other.raw =~ /^\*+$/
@@ -45,7 +42,6 @@ class GlobTest < Minitest::Test
 
     assert_equal(0, Glob.new('./**/*.html') <=> Glob.new('**/*.html'))
   end
-
 end
 end
 end
