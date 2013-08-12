@@ -59,22 +59,4 @@ class Site
     @rake_app.define_task(Rake::Task, :build => @output_tasks.output_files + @filter_tasks.output_files)
   end
 end
-
-
-if ARGV[0] == 'test'
-require 'byebug'
-require "minitest/autorun"
-class SiteTest < Minitest::Test
-  def test_input_files
-    rake_app = Minitest::Mock.new    
-    file_system = Minitest::Mock.new    
-    file_system.expect(:mkdir, nil, ['output/'])
-    site = Site.new(rake_app, file_system)
-    #rules = site.collate_rules('*.html.erb' => PassThroughFilter.new, 'blog/*.html.erb' => PassThroughFilter.new)
-
-    #file_system.expect(
-    #site.process_rules(rules, [])
-  end
-end
-end
 end

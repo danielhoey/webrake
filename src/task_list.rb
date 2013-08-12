@@ -31,7 +31,19 @@ require 'byebug'
 require "minitest/autorun"
 class TaskListTest < Minitest::Test
   def test_pending
-    #assert true, false, "TODO"
+    input_files = Minitest::Mock.new
+    input_files.expect(:find, %w(page1.html.erb page2.html.erb), ['*.html.erb'])
+    task_list = TaskList.new({'*.html.erb' => :transform_unused}, :file_system_unused, input_files, 'output_dir')
+  end
+
+  def test_overlapping_rules
+     #'blog/*.html.erb' => PassThroughFilter.new)
+  end
+
+  def test_rule_output_is_input_to_another_rules
+  end
+
+  def test_endless_loop
   end
 end
 end

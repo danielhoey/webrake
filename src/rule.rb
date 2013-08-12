@@ -11,10 +11,13 @@ class Rule
 
   def create_task(source)
     source = Pathname.new(source)
-    relative_dir = source.relative_path_from(Pathname.new('source/')).dirname
+    relative_dir = './' #source.relative_path_from(Pathname.new('source/')).dirname
+    relative_dir = source.dirname.to_s.split('/')[1..-1].join('/')
     file_name = basename(source)
     output = @output_directory.join(relative_dir, file_name).cleanpath.to_s
     source = source.to_s
+    
+    #puts({:source => source.to_s, :relative_dir => relative_dir, :output => output}.inspect)
 
     Task.new(Rake::FileTask, source, output, Proc.new { 
       content = @transform.apply(@file_system.read(source)); 
@@ -57,8 +60,17 @@ class RuleTest < Minitest::Test
     @file_system.expect(:write, nil, ['source/index.html', 'filter output', mtime])
     t.proc.call
     [@transform, @file_system].each(&:verify)
- 
   end
+
+  def test_subdirectories
+    r = Rule.new(@transform, @file_system, 'source/', :remove_file_extension => '.*') 
+    t = r.create_task('source/dir1/index.html.erb')
+
+    assert_equal(Rake::FileTask, t.rake_task)
+    assert_equal('source/dir1/index.html.erb', t.source)
+    assert_equal('source/dir1/index.html', t.output)
+  end
+
 end
 end
 end
