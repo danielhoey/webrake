@@ -8,6 +8,7 @@ Site.new(
   FileSystem.new('actual'),
   :filters => { 
     '*.html.erb' => Filters::PassThroughFilter.new, 
+    '*.erb' => Filters::Erb.new, 
   },
   :output => { 
     '*.html' => Layout::Erb.new('actual/layout/default.html.erb'),
