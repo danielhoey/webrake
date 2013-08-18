@@ -7,8 +7,8 @@ Site.new(
   Rake.application, 
   FileSystem.new('actual'),
   :filters => { 
-    '*.html.erb' => Filters::PassThroughFilter.new, 
     '*.erb' => Filters::Erb.new, 
+    '*.less' => Filters::Less.new, #TODO: get this filter to be used 
   },
   :output => { 
     '*.html' => Layout::Erb.new('actual/layout/default.html.erb'),
