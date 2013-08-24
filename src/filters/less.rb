@@ -5,7 +5,7 @@ class Less
   end
 
   def apply(content)
-    Less::Parser.new.parse(content).to_css
+    ::Less::Parser.new.parse(content).to_css
       #.to_css(:compress => true)
   end
 end

@@ -17,11 +17,13 @@ class Rule
     output = @output_directory.join(relative_dir, file_name).cleanpath.to_s
     source = source.to_s
     
-    #puts({:source => source.to_s, :relative_dir => relative_dir, :output => output}.inspect)
-
     Task.new(Rake::FileTask, source, output, Proc.new { 
-      content = @transform.apply(@file_system.read(source)); 
-      @file_system.write(output, content, @file_system.mtime(source)) 
+      begin
+        content = @transform.apply(@file_system.read(source)); 
+        @file_system.write(output, content, @file_system.mtime(source)) 
+      rescue
+        raise Rule::Error.new(source, @transform.class, $!)
+      end
     })
   end
   Task = Struct.new(:rake_task, :source, :output, :proc)
@@ -31,6 +33,20 @@ class Rule
       source.basename(@remove_file_extension)
     else
       source.basename
+    end
+  end
+
+  class Error < Exception
+    attr_reader :path, :transform, :base_exception
+
+    def initialize(path, transform, base_exception)
+      @path = path
+      @transform = transform
+      @base_exception = base_exception
+    end
+
+    def message
+      "Error applying #{transform} to #{path}: #{base_exception}"
     end
   end
 end
