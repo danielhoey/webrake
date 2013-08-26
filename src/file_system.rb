@@ -13,7 +13,7 @@ class FileSystem
   end
 
   def mtime(path)
-    in_root_dir { File.mtime(path) }
+    in_root_dir { return File.mtime(path) }
   end
 
   def write(path, contents, mod_time=nil)

@@ -1,10 +1,10 @@
 module Webrake::Filters
-class Less
+class Less < Base
   def initialize
     require 'less'
   end
 
-  def apply(content)
+  def transform(content, front_matter, modify_time)
     ::Less::Parser.new.parse(content).to_css
       #.to_css(:compress => true)
   end

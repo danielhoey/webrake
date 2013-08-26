@@ -1,10 +1,12 @@
 require 'erb'
+require_relative '../erb_common'
 
 module Webrake::Filters
-class Erb
-  def apply(content)
-    @erb = ERB.new(content, nil, '>')
-    @erb.result(binding)
+class Erb < Base
+  include Webrake::ErbCommon
+
+  def transform(content, front_matter, modify_time)
+    erb_result(ERB.new(content, nil, '>'), front_matter.merge(:modify_time => modify_time))
   end
 end
 end

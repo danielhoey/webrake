@@ -1,7 +1,7 @@
 
 module Webrake::Filters
-class PassThroughFilter
-  def apply(content)
+class PassThroughFilter < Base
+  def transform(content, front_matter, modify_time)
     content
   end
 end

@@ -6,6 +6,7 @@ class FunctionalTest < Minitest::Test
   def setup
     Dir.chdir(File.dirname(__FILE__))
     @preexisting_files = Dir["actual/**/*"]
+    system("touch -t 201308271200 actual/source/index.html.erb")
   end
 
   def teardown
