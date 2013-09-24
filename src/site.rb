@@ -1,6 +1,5 @@
 require 'rake'
 require_relative 'rule'
-require_relative 'input_files'
 require_relative 'glob'
 require_relative 'task_list'
 
@@ -25,16 +24,25 @@ class Site
     raise "Invalid rule type: #{rules.keys}" unless rules.keys.empty?
   end
 
+  def create_rules(rules, output_dir, options={})
+    rules.inject({}) do |hash, rule| #glob, transform|
+      hash[rule[0]] = Rule.new(rule[1], @file_system, output_dir, options)
+      hash
+    end
+  end
+
   def define_filter_tasks(rules)
-    input_files = InputFiles.new('source/', @file_system, [])
-    @filter_tasks = TaskList.new(rules, @file_system, input_files, 'source/', :remove_file_extension => '.*')
+    @filter_tasks = TaskList.new(create_rules(rules, 'source/', :remove_file_extension => '.*'), source_files, :recursive => true)
     define_tasks(@filter_tasks)
   end
 
   def define_output_tasks(rules)
-    input_files = InputFiles.new('source/', @file_system, @filter_tasks.output_files)
-    @output_tasks = TaskList.new(rules, @file_system, input_files, 'output/')
+    @output_tasks = TaskList.new(create_rules(rules, 'output/'), source_files.include(@filter_tasks.output_files))
     define_tasks(@output_tasks)
+  end
+
+  def source_files
+    @file_system.file_list("source/**/*")
   end
 
   def define_tasks(tasks)
