@@ -3,18 +3,22 @@ require 'yaml'
 
 module Webrake
 class Rule
-  def initialize(transform, file_system, output_directory, options={})
+  def initialize(transform, file_system, output_directory)
     @transform = transform
     @file_system = file_system
     @output_directory = Pathname.new(output_directory)
-    @remove_file_extension = options[:remove_file_extension]
   end
 
-  def create_task(source)
+  def create_task(source, remove_file_extension=false)
     source = Pathname.new(source)
     relative_dir = './'
     relative_dir = source.dirname.to_s.split('/')[1..-1].join('/')
-    file_name = basename(source)
+    file_name = if remove_file_extension
+                  source.basename('.*')
+                else
+                  source.basename
+                end
+
     output = @output_directory.join(relative_dir, file_name).cleanpath.to_s
     source = source.to_s
     
@@ -41,13 +45,6 @@ class Rule
   end
   Task = Struct.new(:rake_task, :source, :output, :proc)
 
-  def basename(source)
-    if @remove_file_extension
-      source.basename(@remove_file_extension)
-    else
-      source.basename
-    end
-  end
 
   class Error < Exception
     attr_reader :path, :transform, :base_exception
@@ -75,8 +72,8 @@ class RuleTest < Minitest::Test
   end
 
   def test_create_task
-    r = Rule.new(@transform, @file_system, 'source/', :remove_file_extension => '.*') 
-    t = r.create_task('source/index.html.erb')
+    r = Rule.new(@transform, @file_system, 'source/') 
+    t = r.create_task('source/index.html.erb', :remove_file_extension)
 
     assert_equal(Rake::FileTask, t.rake_task)
     assert_equal('source/index.html.erb', t.source)
@@ -93,8 +90,8 @@ class RuleTest < Minitest::Test
   end
 
   def test_subdirectories
-    r = Rule.new(@transform, @file_system, 'source/', :remove_file_extension => '.*') 
-    t = r.create_task('source/dir1/index.html.erb')
+    r = Rule.new(@transform, @file_system, 'source/') 
+    t = r.create_task('source/dir1/index.html.erb', :remove_file_extension)
 
     assert_equal(Rake::FileTask, t.rake_task)
     assert_equal('source/dir1/index.html.erb', t.source)
@@ -102,8 +99,8 @@ class RuleTest < Minitest::Test
   end
 
   def test_front_matter
-    r = Rule.new(@transform, @file_system, 'source/', :remove_file_extension => '.*') 
-    t = r.create_task('source/index.html.erb')
+    r = Rule.new(@transform, @file_system, 'source/') 
+    t = r.create_task('source/index.html.erb', :remove_file_extension)
 
     file_contents = '
 ---

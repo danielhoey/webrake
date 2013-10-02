@@ -16,29 +16,24 @@ class Site
   end
 
   def add_rules(rules)
-    define_filter_tasks(rules.delete(:filters))
-    define_output_tasks(rules.delete(:output))
+    filter_rules = create_rules(rules.delete(:filters), 'source/')
+    @filter_tasks = TaskList.new(filter_rules, source_files, :recursive => true)
+    define_tasks(@filter_tasks)
+
+    output_rules = create_rules(rules.delete(:output), 'output/')
+    @output_tasks = TaskList.new(output_rules, source_files.include(@filter_tasks.output_files))
+    define_tasks(@output_tasks)
+
     define_clean_tasks
     define_build_task
     
     raise "Invalid rule type: #{rules.keys}" unless rules.keys.empty?
   end
 
-  def create_rules(rules, output_dir, options={})
-    rules.inject({}) do |hash, rule| #glob, transform|
-      hash[rule[0]] = Rule.new(rule[1], @file_system, output_dir, options)
-      hash
-    end
-  end
-
-  def define_filter_tasks(rules)
-    @filter_tasks = TaskList.new(create_rules(rules, 'source/', :remove_file_extension => '.*'), source_files, :recursive => true)
-    define_tasks(@filter_tasks)
-  end
-
-  def define_output_tasks(rules)
-    @output_tasks = TaskList.new(create_rules(rules, 'output/'), source_files.include(@filter_tasks.output_files))
-    define_tasks(@output_tasks)
+  def create_rules(rules, output_dir)
+    RuleList.new(rules.map{|glob, transform|
+      [glob, Rule.new(transform, @file_system, output_dir)]
+    })
   end
 
   def source_files
@@ -66,5 +61,15 @@ class Site
   def define_build_task
     @rake_app.define_task(Rake::Task, :build => @output_tasks.output_files + @filter_tasks.output_files)
   end
+end
+
+if ARGV[0] == 'test'
+require 'byebug'
+require "minitest/autorun"
+class SiteTest < Minitest::Test
+  def test_create_task
+    #TODO: test that the rules are ordered by glob specificity
+  end
+end
 end
 end
