@@ -1,5 +1,6 @@
 require 'erb'
 require_relative '../erb_common'
+require_relative 'base'
 
 module Webrake::Filters
 class Erb < Base

@@ -1,3 +1,5 @@
+require_relative 'base'
+
 module Webrake::Filters
 class Less < Base
   def initialize

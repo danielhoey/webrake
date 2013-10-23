@@ -1,3 +1,4 @@
+require_relative 'base'
 
 module Webrake::Filters
 class PassThroughFilter < Base
