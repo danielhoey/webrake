@@ -36,7 +36,7 @@ class Rule
           main_content = raw_content
         end
 
-        content = @transform.apply(main_content, front_matter, mtime)
+        content = @transform.apply(main_content, front_matter, mtime, @file_system)
         @file_system.write(output, content, mtime) 
       rescue
         raise Rule::Error.new(source, @transform.class, $!)
@@ -64,7 +64,7 @@ end
 if ARGV[0] == 'test'
 require 'byebug'
 require "minitest/autorun"
-class RuleTest < Minitest::Test
+class RuleTest < Minitest::Unit::TestCase
   def setup
     @transform = Minitest::Mock.new
     def @transform.class; Minitest::Mock; end
@@ -81,7 +81,7 @@ class RuleTest < Minitest::Test
 
     # test t.proc
     mtime = Time.now
-    @transform.expect(:apply, 'filter output', ['src file content', {}, mtime])
+    @transform.expect(:apply, 'filter output', ['src file content', {}, mtime, @file_system])
     @file_system.expect(:read, 'src file content', ['source/index.html.erb'])
     @file_system.expect(:mtime, mtime, ['source/index.html.erb'])
     @file_system.expect(:write, nil, ['source/index.html', 'filter output', mtime])
@@ -110,7 +110,7 @@ src file content'
 
     mtime = Time.now
     @file_system.expect(:read, file_contents, ['source/index.html.erb'])
-    @transform.expect(:apply, 'filter output', ['src file content', {'title' => 'Title'}, mtime])
+    @transform.expect(:apply, 'filter output', ['src file content', {'title' => 'Title'}, mtime, @file_system])
     @file_system.expect(:mtime, mtime, ['source/index.html.erb'])
     @file_system.expect(:write, nil, ['source/index.html', "filter output", mtime])
 

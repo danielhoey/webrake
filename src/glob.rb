@@ -5,6 +5,10 @@ class Glob
     @raw_glob = raw_glob
   end
 
+  def match_including_subdirectories(file)
+    File.fnmatch("**/#{@raw_glob}", file, File::FNM_PATHNAME | File::FNM_DOTMATCH)
+  end
+
   def <=>(other)
     return 0 if raw == other.raw
     return 0 if raw =~ /^\*+$/ and other.raw =~ /^\*+$/
@@ -18,6 +22,10 @@ class Glob
     end
   end
 
+  def to_s
+    @raw_glob
+  end
+
   def raw
     Pathname.new(@raw_glob).cleanpath.to_s
   end
@@ -26,7 +34,7 @@ end
 if ARGV[0] == 'test'
 require 'byebug'
 require "minitest/autorun"
-class GlobTest < Minitest::Test
+class GlobTest < Minitest::Unit::TestCase
   def test_input_files
     assert_equal(1, Glob.new('*') <=> Glob.new('*.html'))
 

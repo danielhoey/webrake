@@ -9,5 +9,9 @@ class Erb < Base
   def transform(content, front_matter, modify_time)
     erb_result(ERB.new(content, nil, '>'), front_matter.merge(:modify_time => modify_time))
   end
+
+  def files(paths)
+    paths.map{|p| @file_system.read(p)}
+  end
 end
 end

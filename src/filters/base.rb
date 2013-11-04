@@ -1,6 +1,7 @@
 module Webrake::Filters
 class Base
-  def apply(content, front_matter, modify_time)
+  def apply(content, front_matter, modify_time, file_system)
+    @file_system = file_system
     if front_matter.empty?
       transform(content, front_matter, modify_time)   
     else

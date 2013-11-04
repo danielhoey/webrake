@@ -1,7 +1,6 @@
-require_relative 'base'
 
 module Webrake::Filters
-class PassThroughFilter < Base
+class PassThrough < Base
   def transform(content, front_matter, modify_time)
     content
   end

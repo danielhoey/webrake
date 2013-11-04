@@ -2,7 +2,7 @@ require "fileutils"
 require "minitest/autorun"
 require "byebug"
 
-class FunctionalTest < Minitest::Test
+class FunctionalTest < Minitest::Unit::TestCase
   def setup
     Dir.chdir(File.dirname(__FILE__))
     @preexisting_files = Dir["actual/**/*"]
