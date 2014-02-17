@@ -40,7 +40,7 @@ class Site
     dependencies.each do |globs, output|
       source = [globs].flatten.map{|glob| 
         glob = Glob.new(glob)
-        source_files.find_all{|s| glob.match_including_subdirectories(s)}
+        source_files.find_all{|s| glob.match_including_subdirectories("source/#{s}")}
       }.flatten.uniq
       
       @rake_app.define_task(Rake::FileTask, {"source/#{output}" => source})

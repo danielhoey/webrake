@@ -1,0 +1,3 @@
+<% root_url = "http://www.testsite.com" %>
+<%= @source_files.map {|f| "#{root_url}/#{f.output_path}"}.sort.reverse.join("\n") %>
+

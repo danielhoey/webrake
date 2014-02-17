@@ -22,7 +22,7 @@ class Rule
     output = @output_directory.join(relative_dir, file_name).cleanpath.to_s
     source = source.to_s
     
-    Task.new(Rake::FileTask, source, output, Proc.new { 
+    Task.new(Rake::FileTask, source, output, Proc.new {|task|
       begin
         mtime = @file_system.mtime(source)
         raw_content = @file_system.read(source)
@@ -36,9 +36,15 @@ class Rule
           main_content = raw_content
         end
 
-        content = @transform.apply(main_content, front_matter, mtime, @file_system)
+        source_files = task.prerequisites.map{|s|
+          next if s == source
+          SourceFile.new(:path => s, :file_system => @file_system)
+        }.compact
+
+        content = @transform.apply(main_content, front_matter, mtime, source_files)
         @file_system.write(output, content, mtime) 
       rescue
+        #puts $!.backtrace.join("\n")
         raise Rule::Error.new(source, @transform.class, $!)
       end
     })
@@ -64,6 +70,7 @@ end
 if ARGV[0] == 'test'
 require 'byebug'
 require "minitest/autorun"
+require 'ostruct'
 class RuleTest < Minitest::Unit::TestCase
   def setup
     @transform = Minitest::Mock.new
@@ -81,11 +88,11 @@ class RuleTest < Minitest::Unit::TestCase
 
     # test t.proc
     mtime = Time.now
-    @transform.expect(:apply, 'filter output', ['src file content', {}, mtime, @file_system])
+    @transform.expect(:apply, 'filter output', ['src file content', {}, mtime, []])
     @file_system.expect(:read, 'src file content', ['source/index.html.erb'])
     @file_system.expect(:mtime, mtime, ['source/index.html.erb'])
     @file_system.expect(:write, nil, ['source/index.html', 'filter output', mtime])
-    t.proc.call
+    call_proc(t)
     [@transform, @file_system].each(&:verify)
   end
 
@@ -110,15 +117,34 @@ src file content'
 
     mtime = Time.now
     @file_system.expect(:read, file_contents, ['source/index.html.erb'])
-    @transform.expect(:apply, 'filter output', ['src file content', {'title' => 'Title'}, mtime, @file_system])
+    @transform.expect(:apply, 'filter output', ['src file content', {'title' => 'Title'}, mtime, []])
     @file_system.expect(:mtime, mtime, ['source/index.html.erb'])
     @file_system.expect(:write, nil, ['source/index.html', "filter output", mtime])
 
-    t.proc.call
+    call_proc(t)
     [@transform, @file_system].each(&:verify)
   end
 
- 
+  def test_source_files
+    r = Rule.new(@transform, @file_system, 'source/') 
+    t = r.create_task('source/blog_summary.html.erb', :remove_file_extension)
+
+    mtime = Time.now
+    @file_system.expect(:read, 'summary', ['source/blog_summary.html.erb'])
+    @file_system.expect(:mtime, mtime, ['source/blog_summary.html.erb'])
+    @file_system.expect(:write, nil, ['source/blog_summary.html', 'summary of blogs', mtime])
+    @file_system.expect(:read, 'blog', ['source/blog.html']) # source file
+
+    @transform.expect(:apply, 'summary of blogs', ['summary', {}, mtime, [SourceFile.new(:path => 'source/blog.html', :contents => 'blog')]])
+    
+    call_proc(t, ['source/blog.html'])
+    [@transform, @file_system].each(&:verify)
+  end
+
+
+  def call_proc(t, prerequisites=[])
+    t.proc.call(OpenStruct.new(:prerequisites => prerequisites + [t.source]))
+  end
 end
 end
 end

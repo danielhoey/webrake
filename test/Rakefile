@@ -7,12 +7,12 @@ Site.new(
   Rake.application, 
   FileSystem.new('actual'),
   :dependencies => {
-    ['typography.less', 'reset.less'] => 'concatenated_style.css.less'
+    ['typography.less', 'reset.less'] => 'concatenated_style.css.less',
+    '*.html' => 'sitemap.txt'
   },
   :filters => { 
     '*.erb' => Filters::Erb.new, 
     '*.css.less' => Filters::Less.new
-  #TODO: test glob ordering somewhere!!
   },
   :output => { 
     '*.html' => Layout::Erb.new('actual/layout/default.html.erb'),
