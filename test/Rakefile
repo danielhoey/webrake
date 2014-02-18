@@ -1,4 +1,4 @@
-require_relative '../src/webrake'
+require_relative '../lib/webrake'
 include Webrake
 
 task :default => ['build']
@@ -15,7 +15,7 @@ Site.new(
     '*.css.less' => Filters::Less.new
   },
   :output => { 
-    '*.html' => Layout::Erb.new('actual/layout/default.html.erb'),
+    '*.html' => Layout::Erb.new('actual/layout/default.html.erb'),  # TODO: don't specify actual here
     'blog/*.html' => Layout::Erb.new('actual/layout/blog.html.erb')
   }
 )

@@ -1,24 +1,34 @@
 webrake
 =======
 
-Static website generation using rake file tasks
+Webrake is a static website generator leveraging Rake FileTasks with simple extension and customisation allowing explicit control of how files are processed
+
 
 ## API
-rules: glob -> filters
-output: output directory
-files: get files with frontmatter(?)
+
+
+```
+Site.new(
+  Rake.application, 
+  FileSystem.new('src'),
+  :filters => { 
+    '*.erb' => Filters::Erb.new, 
+    '*.css.less' => Filters::Less.new
+  },
+  :dependencies => {
+    ['typography.less', 'reset.less'] => 'concatenated_style.css.less',
+    '*.html' => 'sitemap.txt'
+  },
+  :output => { 
+    '*.html' => Layout::Erb.new('actual/layout/default.html.erb'),
+    'blog/*.html' => Layout::Erb.new('actual/layout/blog.html.erb')
+  }
+)
+```
 
 ## Example
 
 ```
-rules(
-  '.erb' => Erb.new
-  ['.markdown','.md'] => Markdown.new
-  '.html' => [ErbLayout.new('default.html.erb'), output]
-  'blog/*.html' => [ErbLayout.new('post.html.erb'), output]
-  'style.css.less' => [Less.new, output]
-)
-
 sitemap.txt.erb
   <%= files(output['/**/*.html']).each do |f| ... end %>
 

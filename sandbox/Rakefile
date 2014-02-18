@@ -1,20 +1,23 @@
-require 'erb'
-require 'kramdown'
-require 'rake/clean'
-require '../src/webrake'
+require_relative '../lib/webrake'
+include Webrake
 
-@global_rakefile_variable = 'Text set in Rakefile'
+task :default => ['build']
 
-task :default => ['make', 'clean_intermediate']
-task :make => 'output/index.html'
-task :clean_intermediate do
-  CLOBBER.each { |fn| rm_r fn rescue nil }
+Site.new(Rake.application, FileSystem.new('actual')) do |s|
+  s.dependencies(
+    ['typography.less', 'reset.less'] => 'concatenated_style.css.less',
+    '*.html' => 'sitemap.txt')
+
+  s.filters(
+    '*.erb' => Filters::Erb.new, 
+    '*.css.less' => Filters::Less.new)
+
+  s.output(
+    '*.html' => Layout::Erb.new('actual/layout/default.html.erb'),  # don't specify actual here
+    'blog/*.html' => Layout::Erb.new('actual/layout/blog.html.erb'))
 end
 
-CLEAN.include('output')
-directory('output')
 
-markdown('index.markdown')
-layout('index.html', 'default.html.erb')
 
-puts Rake.application.tasks.inspect
+#puts Rake.application.tasks.map(&:inspect).join("\n")
+task :build_clean => ['clean', 'build']

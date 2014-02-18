@@ -1,2 +1,2 @@
 ARGV[0] = 'test'
-require_relative '../src/webrake'
+require_relative '../lib/webrake'
