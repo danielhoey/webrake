@@ -10,5 +10,9 @@ class Less < Base
     ::Less::Parser.new.parse(content).to_css
       #.to_css(:compress => true)
   end
+
+  def default_output_file_extension
+    'css'
+  end
 end
 end

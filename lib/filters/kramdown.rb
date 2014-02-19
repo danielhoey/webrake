@@ -9,5 +9,9 @@ class Kramdown < Base
   def transform(content, front_matter, modify_time)
     ::Kramdown::Document.new(content).to_html
   end
+
+  def default_output_file_extension
+    'html'
+  end
 end
 end
