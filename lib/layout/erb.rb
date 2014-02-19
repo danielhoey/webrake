@@ -9,6 +9,10 @@ class Erb
     @layout = ERB.new(File.read(layout), nil, '>')
   end
 
+  def output_file_name(source_file_name)
+    source_file_name
+  end
+
   def apply(content, front_matter, modify_time, source_files=[])
     erb_result(@layout, front_matter.merge(:content => content, :modify_time => modify_time))
   end

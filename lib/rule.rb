@@ -13,12 +13,8 @@ class Rule
     source = Pathname.new(source)
     relative_dir = './'
     relative_dir = source.dirname.to_s.split('/')[1..-1].join('/')
-    file_name = if remove_file_extension
-                  source.basename('.*')
-                else
-                  source.basename
-                end
-
+    file_name = @transform.output_file_name(source.basename)
+   
     output = @output_directory.join(relative_dir, file_name).cleanpath.to_s
     source = source.to_s
     
@@ -79,8 +75,9 @@ class RuleTest < Minitest::Unit::TestCase
   end
 
   def test_create_task
-    r = Rule.new(@transform, @file_system, 'source/') 
-    t = r.create_task('source/index.html.erb', :remove_file_extension)
+    r = Rule.new(@transform, @file_system, 'source/')
+    @transform.expect(:output_file_name, 'index.html', [Pathname.new('index.html.erb')])
+    t = r.create_task('source/index.html.erb')
 
     assert_equal(Rake::FileTask, t.rake_task)
     assert_equal('source/index.html.erb', t.source)
@@ -98,7 +95,8 @@ class RuleTest < Minitest::Unit::TestCase
 
   def test_subdirectories
     r = Rule.new(@transform, @file_system, 'source/') 
-    t = r.create_task('source/dir1/index.html.erb', :remove_file_extension)
+    @transform.expect(:output_file_name, 'index.html', [Pathname.new('index.html.erb')])
+    t = r.create_task('source/dir1/index.html.erb')
 
     assert_equal(Rake::FileTask, t.rake_task)
     assert_equal('source/dir1/index.html.erb', t.source)
@@ -107,7 +105,8 @@ class RuleTest < Minitest::Unit::TestCase
 
   def test_front_matter
     r = Rule.new(@transform, @file_system, 'source/') 
-    t = r.create_task('source/index.html.erb', :remove_file_extension)
+    @transform.expect(:output_file_name, 'index.html', [Pathname.new('index.html.erb')])
+    t = r.create_task('source/index.html.erb')
 
     file_contents = '
 ---
@@ -127,7 +126,8 @@ src file content'
 
   def test_source_files
     r = Rule.new(@transform, @file_system, 'source/') 
-    t = r.create_task('source/blog_summary.html.erb', :remove_file_extension)
+    @transform.expect(:output_file_name, 'blog_summary.html', [Pathname.new('blog_summary.html.erb')])
+    t = r.create_task('source/blog_summary.html.erb')
 
     mtime = Time.now
     @file_system.expect(:read, 'summary', ['source/blog_summary.html.erb'])

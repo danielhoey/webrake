@@ -1,5 +1,9 @@
 module Webrake::Filters
 class Base
+  def output_file_name(source_file_name)
+    source_file_name.basename('.*')
+  end
+
   def apply(content, front_matter, modify_time, source_files)
     transform_output = if source_files.empty?
                         transform(content, front_matter, modify_time)   

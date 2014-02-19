@@ -5,16 +5,16 @@ class RuleList < Array
     @rules = glob_rules.sort{|a,b| a[0] <=> b[0]}.map{|glob, rule| [glob, rule] }
   end
 
-  def create_tasks(files, remove_extension=false)
-    files.map {|f| create_task(f, remove_extension)}.compact
+  def create_tasks(files)
+    files.map {|f| create_task(f)}.compact
   end
 
-  def create_task(file, remove_extension=false)
+  def create_task(file)
     glob,rule = @rules.find do |glob, rule|
       glob.match_including_subdirectories(file)
     end
     return nil if glob.nil?
-    return rule.create_task(file, remove_extension)
+    return rule.create_task(file)
   end
 end
 
@@ -26,9 +26,9 @@ require_relative 'glob'
 class RuleListTest < Minitest::Unit::TestCase
   def test_apply_first_matching_rule
     default_rule = MiniTest::Mock.new
-    default_rule.expect(:create_task, Rule::Task.new(:unused, 'index.html.erb', :unused, :unused), ['index.html.erb', false])
+    default_rule.expect(:create_task, Rule::Task.new(:unused, 'index.html.erb', :unused, :unused), ['index.html.erb'])
     blog_rule = MiniTest::Mock.new
-    blog_rule.expect(:create_task, Rule::Task.new(:unused, 'blog/index.html.erb', :unused, :unused), ['blog/index.html.erb', false])
+    blog_rule.expect(:create_task, Rule::Task.new(:unused, 'blog/index.html.erb', :unused, :unused), ['blog/index.html.erb'])
 
     rule_list = RuleList.new({Glob.new('*.erb') => default_rule, Glob.new('blog/*.erb') => blog_rule})
  
