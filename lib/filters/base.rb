@@ -25,6 +25,10 @@ class Base
 
   def default_output_file_extension
   end
+
+  def name
+    self.class.to_s
+  end
 end
 
 if ARGV[0] == 'test'

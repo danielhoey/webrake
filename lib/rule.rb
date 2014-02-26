@@ -41,7 +41,7 @@ class Rule
         @file_system.write(output, content, mtime) 
       rescue
         #puts $!.backtrace.join("\n")
-        raise Rule::Error.new(source, @transform.class, $!)
+        raise Rule::Error.new(source, @transform.name, $!)
       end
     })
   end

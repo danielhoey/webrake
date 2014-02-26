@@ -16,5 +16,9 @@ class Erb
   def apply(content, front_matter, modify_time, source_files=[])
     erb_result(@layout, front_matter.merge(:content => content, :modify_time => modify_time))
   end
+
+  def name
+    self.class.to_s
+  end
 end
 end
