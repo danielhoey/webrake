@@ -22,8 +22,8 @@ class Rule
       begin
         mtime = @file_system.mtime(source)
         raw_content = @file_system.read(source)
-      
-        front_matter_match = raw_content.match(/\A\s*---\n(.*)\n---\s*\n(.*)/m)
+
+        front_matter_match = Rule.match_front_matter(raw_content)
         if front_matter_match
           front_matter = YAML.load(front_matter_match[1])
           main_content = front_matter_match[2]
@@ -40,13 +40,16 @@ class Rule
         content = @transform.apply(main_content, front_matter, mtime, source_files)
         @file_system.write(output, content, mtime) 
       rescue
-        #puts $!.backtrace.join("\n")
+        #puts $!.backtrace.join("\n"); puts
         raise Rule::Error.new(source, @transform.name, $!)
       end
     })
   end
   Task = Struct.new(:rake_task, :source, :output, :proc)
 
+  def self.match_front_matter(file_contents)
+    file_contents.match(/\A\s*---\n(.*)\n---\s*\n(.*)/m)
+  end
 
   class Error < Exception
     attr_reader :path, :transform, :base_exception
@@ -124,6 +127,14 @@ src file content'
     [@transform, @file_system].each(&:verify)
   end
 
+  def test_front_matter_only_detected_at_top_of_file
+    file_contents = ['', '---', 'title: Title', '---', 'src file content'].join("\n")
+    assert_equal(0, Rule.match_front_matter(file_contents).begin(0))
+
+    file_contents = ['Some file contents', '---', 'title: Title', '---', 'src file content'].join("\n")
+    assert_equal(nil, Rule.match_front_matter(file_contents))
+  end
+
   def test_source_files
     r = Rule.new(@transform, @file_system, 'source/') 
     @transform.expect(:output_file_name, 'blog_summary.html', [Pathname.new('blog_summary.html.erb')])
@@ -140,7 +151,6 @@ src file content'
     call_proc(t, ['source/blog.html'])
     [@transform, @file_system].each(&:verify)
   end
-
 
   def call_proc(t, prerequisites=[])
     t.proc.call(OpenStruct.new(:prerequisites => prerequisites + [t.source]))

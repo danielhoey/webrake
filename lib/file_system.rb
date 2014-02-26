@@ -9,7 +9,7 @@ class FileSystem
   end
 
   def read(path)
-    in_root_dir{ return File.read(path) }
+    in_root_dir{ return File.open(path, 'rb'){|f| f.read} }
   end
 
   def mtime(path)

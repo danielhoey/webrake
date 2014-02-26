@@ -1,0 +1,12 @@
+
+Don't specify 'actual' in output filters
+Don't specify 'actual' in FileSystem (just have the Rakefile in the root dir)
+Don't use FileSystem at all (just direct File/Dir calls)
+
+Allow arrays in all rule defn, eg: ['*.markdown', '*.md'] => Filter::Kramdown
+
+Remove 'new' for filters that take no initialization parameters
+
+Implement  `@source_files['somefileglob']` for files with dependencies (use FileList ??)
+
+Implement inspect task (`Rake.application.tasks.map(&:inspect).join("\n")`)

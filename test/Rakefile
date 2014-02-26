@@ -17,7 +17,8 @@ Site.new(
   },
   :output => { 
     '*.html' => Layout::Erb.new('actual/layout/default.html.erb'), 
-    'blog/*.html' => Layout::Erb.new('actual/layout/blog.html.erb')
+    'blog/*.html' => Layout::Erb.new('actual/layout/blog.html.erb'),
+    '*.jpg' => Layout::None
   }
 )
 
