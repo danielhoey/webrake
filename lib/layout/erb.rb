@@ -5,8 +5,9 @@ module Webrake::Layout
 class Erb
   include Webrake::ErbCommon
 
-  def initialize(layout)
-    @layout = ERB.new(File.read(layout), nil, '>')
+  def initialize(layout_path)
+    @layout_path = layout_path
+    @layout = ERB.new(File.read(layout_path), nil, '>')
   end
 
   def output_file_name(source_file_name)
@@ -18,7 +19,7 @@ class Erb
   end
 
   def name
-    self.class.to_s
+    "#{self.class.to_s}('#{@layout_path}')"
   end
 end
 end

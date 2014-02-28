@@ -40,6 +40,7 @@ class Rule
         content = @transform.apply(main_content, front_matter, mtime, source_files)
         @file_system.write(output, content, mtime) 
       rescue
+        #puts; puts $!.inspect
         #puts $!.backtrace.join("\n"); puts
         raise Rule::Error.new(source, @transform.name, $!)
       end
