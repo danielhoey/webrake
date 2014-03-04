@@ -13,7 +13,7 @@ Site.new(
   :filters => { 
     '*.erb' => Filters::Erb.new, 
     '*.markdown' => Filters::Kramdown.new, 
-    '*.css.less' => Filters::Less.new
+    '*.css.less' => Filters::Less.new('actual/source')
   },
   :output => { 
     '*.html' => Layout::Erb.new('actual/layout/default.html.erb'), 

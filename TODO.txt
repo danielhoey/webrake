@@ -10,3 +10,6 @@ Remove 'new' for filters that take no initialization parameters
 Implement  `@source_files['somefileglob']` for files with dependencies (use FileList ??)
 
 Implement inspect task (`Rake.application.tasks.map(&:inspect).join("\n")`)
+
+Extra source file data for feed.xml etc
+SourceFile.output_path => path ?
