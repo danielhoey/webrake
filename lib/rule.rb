@@ -26,6 +26,8 @@ if ARGV[0] == 'test'
 require 'byebug'
 require "minitest/autorun"
 require 'ostruct'
+require_relative './source_file'
+
 class RuleTest < Minitest::Unit::TestCase
   def setup
     @transform = Minitest::Mock.new
@@ -92,10 +94,11 @@ src file content'
     mtime = Time.now
     @file_system.expect(:read, 'summary', ['source/blog_summary.html.erb'])
     @file_system.expect(:mtime, mtime, ['source/blog_summary.html.erb'])
+    @file_system.expect(:mtime, mtime, ['source/blog.html'])
     @file_system.expect(:write, nil, ['source/blog_summary.html', 'summary of blogs', mtime])
     @file_system.expect(:read, 'blog', ['source/blog.html']) # source file
 
-    @transform.expect(:apply, 'summary of blogs', ['summary', {}, mtime, [SourceFile.new(:path => 'source/blog.html', :contents => 'blog')]])
+    @transform.expect(:apply, 'summary of blogs', ['summary', {}, mtime, [SourceFile.new('source/blog.html', mtime, 'blog')]])
     
     call_proc(t, ['source/blog.html'])
     [@transform, @file_system].each(&:verify)

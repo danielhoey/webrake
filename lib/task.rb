@@ -10,29 +10,18 @@ class Task
     @output = output
     @proc = Proc.new {|task|
       begin
-        mtime = file_system.mtime(source)
-        raw_content = file_system.read(source)
-
-        front_matter_match = Task.match_front_matter(raw_content)
-        if front_matter_match
-          front_matter = YAML.load(front_matter_match[1])
-          main_content = front_matter_match[2]
-        else
-          front_matter = {}
-          main_content = raw_content
-        end
+        file = SourceFile.new(source, file_system.mtime(source), file_system.read(source))
 
         source_files = task.prerequisites.map{|s|
           next if s == source
-          SourceFile.new(:path => s, :file_system => file_system)
+          SourceFile.new(s, file_system.mtime(s), file_system.read(s))
         }.compact
 
-        content = transform.apply(main_content, front_matter, mtime, source_files)
-        file_system.write(output, content, mtime) 
+        content = transform.apply(file.content, file.data, file.mtime, source_files)
+        file_system.write(output, content, file.mtime) 
       rescue
-        #puts; puts $!.inspect
-        #puts $!.backtrace.join("\n"); puts
-        raise Task::Error.new(source, transform.name, $!)
+        #raise $! if ARGV.include?('test')
+        raise Task::Error.new(source, transform.name, $!) 
       end
     }
   end
