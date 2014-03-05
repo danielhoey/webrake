@@ -15,14 +15,14 @@ class FunctionalTest < Minitest::Unit::TestCase
   end
 
   def test_webrake
-    system("rake build_clean");
+    system("cd actual; rake build_clean");
     diff_output = `diff -r -x ".*" actual expected`
     assert_equal('', diff_output, "\n#{diff_output}\n")
-    
-    system("rake clean_intermediate_files")
+
+    system("cd actual; rake clean_intermediate_files")
     assert(!File.exist?('actual/source/index.html'))
 
-    system("rake clean")
+    system("cd actual; rake clean")
     assert(!File.exist?('actual/output/index.html'))
     assert(!File.exist?('actual/output/blog/post1.html'))
   end

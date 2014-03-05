@@ -42,8 +42,8 @@ class TaskListTest < Minitest::Unit::TestCase
     input_files = %w(page1.html.erb page2.html.erb)
 
     rule_list = MiniTest::Mock.new
-    tasks = [Rule::Task.new(:unused, 'page1.html.erb', 'page1.html', :unused),
-             Rule::Task.new(:unused, 'page2.html.erb', 'page2.html', :unused)]
+    tasks = [Task.new('page1.html.erb', 'page1.html', :unused, :unused),
+             Task.new('page2.html.erb', 'page2.html', :unused, :unused)]
     rule_list.expect(:create_tasks, tasks, [input_files])
     rule_list.expect(:create_tasks, [], [%w(page1.html page2.html)])
 

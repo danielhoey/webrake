@@ -1,11 +1,11 @@
-require_relative '../lib/webrake'
+require_relative '../../lib/webrake'
 include Webrake
 
 task :default => ['build']
 
 Site.new(
   Rake.application, 
-  FileSystem.new('actual'),
+  FileSystem.new('.'),
   :dependencies => {
     ['typography.less', 'reset.less'] => 'concatenated_style.css.less',
     '*.html' => 'sitemap.txt'
@@ -13,11 +13,11 @@ Site.new(
   :filters => { 
     '*.erb' => Filters::Erb.new, 
     '*.markdown' => Filters::Kramdown.new, 
-    '*.css.less' => Filters::Less.new('actual/source')
+    '*.css.less' => Filters::Less.new('source')
   },
   :output => { 
-    '*.html' => Layout::Erb.new('actual/layout/default.html.erb'), 
-    'blog/*.html' => Layout::Erb.new('actual/layout/blog.html.erb'),
+    '*.html' => Layout::Erb.new('layout/default.html.erb'), 
+    'blog/*.html' => Layout::Erb.new('layout/blog.html.erb'),
     '*.jpg' => Layout::None
   }
 )

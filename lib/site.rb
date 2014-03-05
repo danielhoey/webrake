@@ -92,12 +92,12 @@ class SiteTest < Minitest::Unit::TestCase
   end
 
   def test_create_task
-    task = Rule::Task.new(Rake::FileTask, 'source.txt', 'output.txt', Proc.new {})
+    task = Task.new('source.txt', 'output.txt', :transform, :file_system)
     @site.define_tasks([task]) 
     assert_equal(1, Rake.application.tasks.size)
     assert_equal(%w(source.txt), Rake.application.tasks[0].prerequisites)
     
-    task = Rule::Task.new(Rake::FileTask, ['source1.txt', 'source2.txt'], 'output2.txt', Proc.new {})
+    task = Task.new(['source1.txt', 'source2.txt'], 'output2.txt', :transform, :file_system)
     @site.define_tasks([task]) 
     assert_equal(%w(source1.txt source2.txt), Rake.application.tasks[1].prerequisites)
   end

@@ -27,13 +27,12 @@ require "rake"
 require_relative "rule"
 class DependencyTest < Minitest::Unit::TestCase
   def test_find_task
-    tasks = [Rule::Task.new(:rake_task, :source, 'dir/output_file', :proc)]
+    tasks = [Task.new(:source, 'dir/output_file', :transform, :file_system)]
     assert_equal(tasks[0], Dependency.find_task(tasks, 'dir/output_file'))
   end
 
   def test_apply_dependency_to_task_list
-    rake_task = Rake::Task.new('test', Rake::Application.new)
-    task = Rule::Task.new(rake_task, 'dir/source_file', 'dir/output_file', :proc)
+    task = Task.new('dir/source_file', 'dir/output_file', :transform, :file_system)
     dependency = Dependency.create(%w(src1 src2), 'output_file', [task], 'dir/')
 
     assert_equal(%w(dir/source_file dir/src1 dir/src2), task.source)
@@ -41,7 +40,7 @@ class DependencyTest < Minitest::Unit::TestCase
 
   def skiptest_single_source
     rake_task = Rake::Task.new('test', Rake::Application.new)
-    dependency = Dependency.create('src1', 'output_file', [Rule::Task.new(rake_task, :source, 'output_file', :proc)])
+    dependency = Dependency.create('src1', 'output_file', [Task.new(:source, 'output_file', :proc)])
 
     assert_equal(%w(src1), rake_task.prerequisites)
   end

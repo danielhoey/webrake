@@ -26,9 +26,9 @@ require_relative 'glob'
 class RuleListTest < Minitest::Unit::TestCase
   def test_apply_first_matching_rule
     default_rule = MiniTest::Mock.new
-    default_rule.expect(:create_task, Rule::Task.new(:unused, 'index.html.erb', :unused, :unused), ['index.html.erb'])
+    default_rule.expect(:create_task, Task.new('index.html.erb', :unused, :unused, :unused), ['index.html.erb'])
     blog_rule = MiniTest::Mock.new
-    blog_rule.expect(:create_task, Rule::Task.new(:unused, 'blog/index.html.erb', :unused, :unused), ['blog/index.html.erb'])
+    blog_rule.expect(:create_task, Task.new('blog/index.html.erb', :unused, :unused, :unused), ['blog/index.html.erb'])
 
     rule_list = RuleList.new({Glob.new('*.erb') => default_rule, Glob.new('blog/*.erb') => blog_rule})
  
