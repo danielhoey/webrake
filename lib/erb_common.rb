@@ -6,6 +6,8 @@ module Webrake
         self.instance_variable_set("@#{key}", value)
       end
       erb.result(binding)
+    rescue SyntaxError
+      raise StandardError.new($!.message)
     end
 
     if ARGV[0] == 'test'

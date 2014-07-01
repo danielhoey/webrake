@@ -1,0 +1,9 @@
+---
+title: Blog Summary
+---
+<% @source_files.each do |post| -%>
+  <div>
+    <a href="/<%= post.output_path %>"></a>
+    <%= post.content %>
+  </div>
+<% end -%>
