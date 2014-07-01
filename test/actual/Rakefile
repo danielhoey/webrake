@@ -8,7 +8,8 @@ Site.new(
   FileSystem.new('.'),
   :dependencies => {
     ['typography.less', 'reset.less'] => 'concatenated_style.css.less',
-    '*.html' => 'sitemap.txt'
+    '*.html' => 'sitemap.txt',
+    'blog/*.html' => 'blog_summary.html'
   },
   :filters => { 
     '*.erb' => Filters::Erb.new, 

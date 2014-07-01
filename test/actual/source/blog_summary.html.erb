@@ -1,9 +1,9 @@
 ---
 title: Blog Summary
 ---
-<% @source_files.each do |post| -%>
+<% @source_files.each do |post| %>
   <div>
-    <a href="/<%= post.output_path %>"></a>
+    <a href="/<%= post.path %>"></a>
     <%= post.content %>
   </div>
-<% end -%>
+<% end %>
