@@ -31,12 +31,13 @@ class Task
   end
 
   class Error < Exception
-    attr_reader :path, :transform, :base_exception
+    attr_reader :path, :transform, :base_exception, :stack_trace, :backtrace
 
     def initialize(path, transform, base_exception)
       @path = path
       @transform = transform
       @base_exception = base_exception
+      @backtrace = @base_exception.backtrace
     end
 
     def message
