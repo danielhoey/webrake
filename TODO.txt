@@ -11,3 +11,5 @@ Implement inspect task (`Rake.application.tasks.map(&:inspect).join("\n")`)
 
 Extra source file data for feed.xml etc
 SourceFile.output_path => path ?
+
+Run clean task if Rakefile has changed

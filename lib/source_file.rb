@@ -38,9 +38,8 @@ if ARGV[0] == 'test'
 require 'byebug'
 require "minitest/autorun"
 require 'ostruct'
-require_relative './source_file'
 
-class RuleTest < Minitest::Unit::TestCase
+class SourceFileTest < Minitest::Unit::TestCase
   def test_empty_file
     sf = SourceFile.new('source/file', :mtime, '')
     assert_equal('', sf.content)
